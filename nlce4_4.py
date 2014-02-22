@@ -22,7 +22,7 @@ while Nx <= n:       #loops from c0202_0101, c0303_0101, ... , C0404_0303
         col2.append(float(line[1]))
     f.close()
 
-    if not alphas: alphas = numpy.array(col1)
+    if len(alphas)==0: alphas = numpy.array(col1)
 
     # to assign correct labels
     
