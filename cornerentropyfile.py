@@ -51,6 +51,8 @@ def cornerentropy(m,d):
         pmm = pmm - d[dname]
         x += 1     # cycle through all data
 
+    pmm *= 0.5
+
     return pmm
 
 

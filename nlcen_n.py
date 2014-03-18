@@ -15,5 +15,5 @@ for n in range(2,maxn+1):
     # Save result to file
     f = open("Results_%02dx%02d" % (n,n), 'w')
     for i in range(len(alphas)):
-        f.write("%.20f %.20f\n" % (alphas[i],total[i]*0.5))
+        f.write("%.20f %.20f\n" % (alphas[i],total[i]))
     f.close()
