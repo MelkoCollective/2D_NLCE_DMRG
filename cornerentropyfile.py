@@ -3,6 +3,8 @@
 import numpy
 
 def cornerentropy(m,d):
+
+    #print "m = ",m
     
     pmm = 0
     x = 1
@@ -38,10 +40,13 @@ def cornerentropy(m,d):
         dname = "L%02d%02d_%02d"%(m,m,x)
 
         # set coefficients
-        if x == int(m/2) and m%2==0:
-            d[dname] = (2*m-2)*d[dname]
-        else:
-            d[dname] = (4*m-4)*d[dname]
+        coef = 0
+        if x == int(m/2) and m%2==0: coef = (2.*m-2.)
+        else:                        coef = (4.*m-4.)
+
+        d[dname] = coef*d[dname]
+
+        #print dname," %.3f"%(coef,)
 
         pmm = pmm - d[dname]
         x += 1     # cycle through all data
