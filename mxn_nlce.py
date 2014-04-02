@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import numpy
 import mxn_getdata
 import mxn_weight
@@ -37,10 +38,14 @@ for n in range (2,maxn+1):
             f.close()
 
 # Show all required data files
-print("The following data files are required:\n", required)
+#print "The following data files are required:"
+#for r in required:
+#    print "  ",r 
 
 # If any missing data
 if len(missing) > 0:
-    print("The following data files were not found:\n", missing)
+    print "The following data files were not found:"
+    for m in missing:
+        print "  ",m 
 
 
