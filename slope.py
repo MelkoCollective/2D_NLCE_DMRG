@@ -3,8 +3,8 @@ from numpy import matrix,linalg,mean
 from math import log,sqrt
 import sys
 
-lmax = 4
-lmin = 3
+lmax = 5
+lmin = 4
 
 results_template = "Results_%02dx%02d"
 
@@ -22,7 +22,6 @@ def linfit(x_list,y_list): #includes linear fitting as a special case
 
 
 fname = results_template%(2,2)
-print fname
 f = open(fname, 'r')
 alphas = []
 for lines in f:
