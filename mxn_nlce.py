@@ -8,7 +8,7 @@ from mxn_order import *
 # User settings
 
 order_min = 2
-order_max = 5
+order_max = 6
 order = Arithmetic()
 
 #############################
@@ -31,14 +31,15 @@ for I in range(order_min,order_max+1):
         if len(missing) == 0:
             w = mxn_weight.weight(m,n,d,w) # performs cluster weight calculations
 
-            fac = 1
-            if m != n: fac = 2
+            #Embedding factor (1 for squares, 2 for rectangles):
+            Lc = 1
+            if m != n: Lc = 2
 
             # cannot use total += w['%02d%02d'%(m,n)] or else W0202 somehow gets changed every iteration
             if total is None:
-                total = fac*w['%02d%02d'%(m,n)]
+                total = Lc*w['%02d%02d'%(m,n)]
             else:
-                total = total + fac*w['%02d%02d'%(m,n)]
+                total = total + Lc*w['%02d%02d'%(m,n)]
 
             # Save result to file
             filename = "Results_%.4f" % order.length(I)
@@ -57,5 +58,3 @@ if len(missing) > 0:
     print "The following data files were not found:"
     for m in missing:
         print "  ",m 
-
-
