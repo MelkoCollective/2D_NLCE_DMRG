@@ -6,11 +6,13 @@ import mxn_cornerentropy # builds corner entropy formulas ( ie. P0404 = # )
 
 def weight(m,n,d,w):
 
-    p = {}
-    pname = "p%02d%02d"%(m,n) #p0101, p0202, p0303, ...
-    p[pname] = mxn_cornerentropy.cornerentropy(m,n,d)
-    w['%02d%02d'%(m,n)] = p[pname]
-            
+    w_mxn_name = '%02d%02d'%(m,n)
+
+    # First term in weight of mxn is property of mxn
+    w[w_mxn_name] = mxn_cornerentropy.cornerentropy(m,n,d)
+
+    wformula = "W%02d%02d=P%02d%02d"%(m,n,m,n)
+
     for y in range (2,n+1):
         for x in range (y,m+1):
             if y < n or x < m:
@@ -20,5 +22,10 @@ def weight(m,n,d,w):
                 
                 if x==y: coeff = coeff/2   # different coefficents for squares
 
-                w['%02d%02d'%(m,n)] -= coeff * w['%02d%02d'%(x,y)]
+                wformula += "%+d*W%02d%02d"%(-coeff,x,y)
+
+                w[w_mxn_name] -= coeff * w['%02d%02d'%(x,y)]
+
+    print wformula
+
     return w
