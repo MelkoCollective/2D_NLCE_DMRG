@@ -42,7 +42,7 @@ for I in range(order_min,order_max+1):
                 total = total + Lc*w['%02d%02d'%(m,n)]
 
             # Save result to file
-            filename = "Results_%.4f" % order.length(I)
+            filename = "Results_" + order.lengthstr(I)
             f = open(filename, 'w')
             for i in range(len(alphas)):
                 f.write("%.20f %.20f\n" % (alphas[i],total[i]))
