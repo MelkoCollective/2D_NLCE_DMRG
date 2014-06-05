@@ -3,10 +3,19 @@ from numpy import matrix,linalg,mean
 from math import log,sqrt
 import sys
 
-lmax = 5
+lmax = 6
 lmin = 4
+lstep = 0.5
 
-results_template = "Results_%02dx%02d"
+orders = []
+ll = lmin
+while abs(ll-lmax) > 1E-6:
+   orders.append(ll)
+   ll += lstep
+
+print orders
+
+results_template = "Results_%.1f"
 
 def linfit(x_list,y_list): #includes linear fitting as a special case
     Y = matrix([[y_] for y_ in y_list])
@@ -21,7 +30,7 @@ def linfit(x_list,y_list): #includes linear fitting as a special case
     return (m,b,rms_err)
 
 
-fname = results_template%(2,2)
+fname = results_template%(lmin,)
 f = open(fname, 'r')
 alphas = []
 for lines in f:
@@ -31,8 +40,8 @@ f.close()
 
 res = {}
 
-for l in range(lmin,lmax+1):
-    fname = results_template%(l,l)
+for l in orders:
+    fname = results_template%(l,)
     print fname
     f = open(fname, 'r')
     corners = []
@@ -45,12 +54,12 @@ for l in range(lmin,lmax+1):
 slopes = []
 
 logl = []
-for l in range(lmin,lmax+1):
+for l in orders:
     logl.append(log(l))
 
 for i,a in enumerate(alphas):
     corners = []
-    for l in range(lmin,lmax+1):
+    for l in orders:
         corners.append(res[l][i])
     m,b,err = linfit(logl,corners)
     slopes.append(m)
