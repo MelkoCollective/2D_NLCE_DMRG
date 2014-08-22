@@ -1,0 +1,31 @@
+#!/usr/bin/python
+#Converts regular stagered data into clustered stagered data
+import subprocess
+import argparse
+import os
+
+home="/nfs/solar/home/mstoudenmire/simulations/xy/All_Cuts"
+destination="/nfs/solar/home/mstoudenmire/simulations/xy/Clustered_Stag_Cuts"
+
+#Both of these need to be even
+max_x = 14
+max_y = 8
+
+os.chdir(home)
+
+for j in range (4,max_y+1,2):
+    for i in range (j,max_x+1,2):
+        for p in range(2,i-1,2):
+            for q in range(2,j-1,2):
+                cname1="C%02d%02d_%02d%02d"%(i,j,p,q)
+                cname2="L%02d%02d_%02dY"%(i,j,p)
+                cname3="L%02d%02d_%02dX"%(i,j,q)
+                #print cname1, cname2, cname3
+                fname1="C%02d%02d_%02d%02d"%(i/2,j/2,p/2,q/2)
+                fname2="L%02d%02d_%02dY"%(i/2,j/2,p/2)
+                fname3="L%02d%02d_%02dX"%(i/2,j/2,q/2)
+                #print fname1, fname2, fname3
+
+                subprocess.call(['cp',cname1,destination+'/'+fname1])
+                subprocess.call(['cp',cname2,destination+'/'+fname2])
+                subprocess.call(['cp',cname3,destination+'/'+fname3])

@@ -1,0 +1,31 @@
+#!/usr/bin/python
+#Cleans out run folders, leaves inputfile, screenrc and other such files
+import os,sys
+
+force = False
+if len(sys.argv) > 1:
+    if sys.argv[1] == '-f': force = True
+
+
+try:
+    from taskfile import sim
+    taskfile_found = True
+except:
+    sim = None
+    taskfile_found = False
+
+if force: answer = 'y'
+else:
+    if taskfile_found and os.path.isfile(sim.name):
+        answer = raw_input("Delete all simulation data files? (y/n) ")
+    else:
+        answer = 'y'
+
+if answer[0] == 'y':
+    import os
+
+    if taskfile_found:
+        os.system("rm -f *.xml")
+        os.system("rm -f *.run*")
+        os.system("rm -f " + sim.name + ".*")
+        os.system("rm taskfile.pyc")

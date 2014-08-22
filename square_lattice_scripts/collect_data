@@ -1,0 +1,56 @@
+#!/usr/bin/python
+#Takes data from each individual run folder and copies the cuts over to another folder
+import subprocess
+import argparse
+import os
+
+directories=[]
+filescopied=[]
+max_x=14
+max_y=8
+max_trial=6
+path="/xfs1/mstoudenmire/simulations/xy/"
+destination="/xfs1/mstoudenmire/simulations/xy/All_Cuts"
+model='/StagXY_'
+
+for j in range(2,max_y+1):
+    for i in range(j,max_x+1):
+        for k in range(1,max_trial+1):
+            l=str(i)
+            m=str(j)
+            n=str(k)
+            chng=0
+            name=model+l+'x'+m+'_'+n
+            testpath=path+name
+            try:
+                os.chdir(testpath)
+                directories.append(name)
+                chng=1
+            except:
+                continue
+            if chng==1:
+                for p in range(1,i):
+                    for q in range(1,j):
+                        try:
+                            filename="C%02d%02d_%02d%02d"%(i,j,p,q)
+                            subprocess.call(['cp',filename,destination])
+                            filescopied.append(filename)
+                        except:
+                            continue
+                        try:
+                            filename="L%02d%02d_%02dY"%(i,j,p)
+                            subprocess.call(['cp',filename,destination])
+                            filescopied.append(filename)
+                            if i==j:
+                                os.chdir(destination)  
+                                altfilename="L%02d%02d_%02d"%(i,j,p)
+                                subprocess.call(['cp',filename,altfilename])
+                                os.chdir(testpath)
+                        except:
+                            continue
+                        try:
+                            filename="L%02d%02d_%02dX"%(i,j,q)
+                            subprocess.call(['cp',filename,destination])
+                            filescopied.append(filename)
+                        except:
+                            continue
