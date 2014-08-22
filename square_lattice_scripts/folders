@@ -1,0 +1,35 @@
+#!/usr/bin/python
+#Unfinished script; intended to create all necessary folders for certain orders of runs
+import subprocess
+import argparse
+import os
+from mxn_order import *
+import sys
+
+max_order=15
+min_order=4
+order=Arithmetic()
+destination='~/simulations/xy/'
+type='StagXY_'
+#os.chdir(destination)  
+
+#Use Ravi's ordering to establish which clusters we would need
+for i in range (min_order,max_order+1):
+    for x,y in order.clusters(i):
+        if y == 2:
+            trials = 2
+        elif y == 3:
+            trials = 3
+        elif y > 3:
+            trials = int(y/2)+2
+        else:
+            print 'invalid y value', y
+        for t in range (1,trials+1):
+            foldername=type+"%dx%d_%d"%(x,y,t)
+            #subprocess.call(['mkdir',foldername])
+            current_folder=destination+foldername
+            print current_folder
+            #os.chdir(current_folder)
+            
+            #Now need to include templates
+

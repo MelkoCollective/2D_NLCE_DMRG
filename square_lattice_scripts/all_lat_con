@@ -1,0 +1,25 @@
+#!/usr/bin/python
+#Goes through all path files and creates appropriate '.h' files; uses 'lattice_construct' script
+import subprocess
+import argparse
+parser=argparse.ArgumentParser()
+parser.add_argument('max_x',help='Maximum X value for files')
+parser.add_argument('max_y',help='Maximum Y value for files')
+parser.add_argument('max_trial',help='Maximum trial value for files')
+args=parser.parse_args()
+
+foldername="StagXY_"
+max_x=int(args.max_x)
+max_y=int(args.max_y)
+max_trial=int(args.max_trial)
+
+for i in range(2,max_x+1):
+    i=str(i)
+    for j in range(2,max_y+1):
+        j=str(j)
+        for k in range(1,max_trial+1):
+            k=str(k)
+            name=foldername+i+"x"+j+"_"+k
+            subprocess.call(["lattice_construct",name])
+
+    

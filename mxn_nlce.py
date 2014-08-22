@@ -2,6 +2,7 @@
 import numpy
 import mxn_getdata
 import mxn_weight
+from frange import *
 from mxn_order import *
 
 #############################
@@ -9,6 +10,7 @@ from mxn_order import *
 
 order_min = 2
 order_max = 6
+order_step = 1
 order = Arithmetic()
 
 #############################
@@ -21,7 +23,7 @@ missing = [] # The list of missing data files
 
 clusters = []
 
-for I in range(order_min,order_max+1):
+for I in frange(order_min,order_max+0.01,order_step):
     for m,n in order.clusters(I):
 
         d,alphas,newrequired,newmissing = mxn_getdata.getdata(m,n,d) # read and check for missing data
