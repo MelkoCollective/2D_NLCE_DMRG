@@ -4,4 +4,4 @@ def checkdata(fname):
         f.close()
         return True
     except:
-        return False 
+        return False

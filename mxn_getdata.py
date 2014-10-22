@@ -16,40 +16,55 @@ def getdata(m,n,d):
         for x in range (y, m):
             fname = "C%02d%02d_%02d%02d"%(m,n,x,y)
             required.append(fname)
-            newmissing = mxn_checkdata.checkdata(fname)
-            if len(newmissing) > 0: missing.append(newmissing)
-            if len(missing) == 0: d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+            if mxn_checkdata.checkdata(fname):
+                d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+            else:
+                missing.append(fname)
             
     if m != n: # Extra terms on rectangles
         for x in range (1, m):
             for y in range (x+1,n):
                 fname = "C%02d%02d_%02d%02d"%(m,n,x,y)
                 required.append(fname)
-                newmissing = mxn_checkdata.checkdata(fname)
-                if len(newmissing) > 0: missing.append(newmissing)
-                if len(missing) == 0: d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+                if mxn_checkdata.checkdata(fname):
+                    d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+                else:
+                    missing.append(fname)
                 
     # L's
     if m == n:
         for j in range (1,int(n/2)+1): # squares
-            fname = "L%02d%02d_%02d"%(m,n,j)
-            required.append(fname)
-            newmissing = mxn_checkdata.checkdata(fname)
-            if len(newmissing) > 0: missing.append(newmissing)
-            if len(missing) == 0: d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+            keyname = "L%02d%02d_%02d"%(m,n,j)
+            required.append(keyname)
+
+            fname = keyname
+            if mxn_checkdata.checkdata(fname):
+                d[keyname], alphas = mxn_extractdata.extract(fname, alphas)
+            else:
+                fname = "L%02d%02d_%02dX"%(m,n,j)
+                if mxn_checkdata.checkdata(fname):
+                    d[keyname], alphas = mxn_extractdata.extract(fname, alphas)
+                else:
+                    fname = "L%02d%02d_%02dY"%(m,n,j)
+                    if mxn_checkdata.checkdata(fname):
+                        d[keyname], alphas = mxn_extractdata.extract(fname, alphas)
+                    else:
+                        missing.append(fname)
     else:
         for jx in range (1,int(n/2)+1): # rectangle - horizontal line cuts
             fname = "L%02d%02d_%02dX"%(m,n,jx)
             required.append(fname)
-            newmissing = mxn_checkdata.checkdata(fname)
-            if len(newmissing) > 0: missing.append(newmissing)
-            if len(missing) == 0: d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+            if mxn_checkdata.checkdata(fname):
+                d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+            else:
+                missing.append(fname)
         
         for jy in range (1,int(m/2)+1): # rectangle - vertical line cuts
             fname = "L%02d%02d_%02dY"%(m,n,jy)
             required.append(fname)
-            newmissing = mxn_checkdata.checkdata(fname)
-            if len(newmissing) > 0: missing.append(newmissing)
-            if len(missing) == 0: d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+            if mxn_checkdata.checkdata(fname):
+                d[fname], alphas = mxn_extractdata.extract(fname, alphas)
+            else:
+                missing.append(fname)
         
     return d, alphas, required, missing
