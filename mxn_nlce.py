@@ -43,12 +43,13 @@ for I in frange(order_min,order_max+0.01,order_step):
             else:
                 total = total + Lc*w['%02d%02d'%(m,n)]
 
-            # Save result to file
-            filename = "Results_" + order.lengthstr(I)
-            f = open(filename, 'w')
-            for i in range(len(alphas)):
-                f.write("%.20f %.20f\n" % (alphas[i],total[i]))
-            f.close()
+    # Save result to file
+    filename = "Results_" + order.lengthstr(I)
+    print "Writing file ",filename
+    f = open(filename, 'w')
+    for i in range(len(alphas)):
+        f.write("%.20f %.20f\n" % (alphas[i],total[i]))
+    f.close()
 
 # Show all required data files
 #print "The following data files are required:"
