@@ -2,15 +2,15 @@
 #Calculates the slope fits of the data as a function of alpha; uses the arithmetic ordering scheme
 import numpy as np
 from numpy import matrix,linalg,mean
-from math import log,sqrt
+from math import log,sqrt,exp
 import sys
 import argparse
 
 
 ##------------------------
 
-lmin = 2.5
-lmax = 3.5
+lmin = 3.0
+lmax = 6.0
 
 ##------------------------
 
@@ -32,6 +32,18 @@ def linfit(x_list,y_list):
     rms_err = sqrt(mean([float(item)**2 for item in Y-X*matrix([[m],[b]])]))
 
     return (m,b,rms_err)
+
+def subleading_fit(x_list,y_list):
+    Y = matrix([[y_] for y_ in y_list])
+    X = matrix([[x_,1,exp(-x_)] for x_ in x_list])
+
+    (Q,R) = linalg.qr(X)
+
+    (a,b,c) = [float(item) for item in linalg.solve(R,Q.transpose()*Y)]
+
+    rms_err = sqrt(mean([float(item)**2 for item in Y-X*matrix([[a],[b],[c]])]))
+
+    return (a,b,c,rms_err)
 
 def frange(start, end, step):
     x = start
@@ -100,7 +112,9 @@ for i,a in enumerate(alphas):
     corners = []
     for l in lfloat:
         corners.append(res[l][i])
-    m,b,err = linfit(logl,corners)
+    m = None; b = None; c = None;
+    #m,b,err = linfit(logl,corners)
+    m,b,c,err = subleading_fit(logl,corners)
     slopes.append(m)
     errors.append(err)
     if a in alpha_out:
@@ -112,7 +126,7 @@ for i,a in enumerate(alphas):
             f.write("%.20f %.20f\n"%(logl[j],corners[j]))
         f.close()
         print "Writing file: line_"+a
-        print "alpha=%s, m=%f, b=%f"%(a,m,b)
+        print "alpha={}, m={}, b={}, c={}".format(a,m,b,c)
         f = open("line_"+a,'w')
         for j,l in enumerate(lfloat):
             c=m*logl[j]+b
