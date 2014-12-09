@@ -5,11 +5,14 @@ import mxn_weight
 from frange import *
 from mxn_order import *
 
+xmin = None
+xmax = None
+
 #############################
 # User settings
 
 #order_min = 2
-#order_max = 5.0
+#order_max = 4.0
 #order_step = 0.5
 #order = Arithmetic()
 
@@ -18,7 +21,6 @@ order_max = 5.0
 order_step = 1.0
 order = MaxL()
 
-xmin = None
 ##xmin = 2.00
 #xmax = 1.72
 xmin = 2.00
