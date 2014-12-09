@@ -1,157 +1,185 @@
 #!/usr/bin/python
 #Converts files with the lattice outline and cuts into the '.h' files used by ITensor
-import argparse
+import re,os,sys,argparse
+
 parser=argparse.ArgumentParser()
-parser.add_argument("fname",help='Input lattice file')
-parser.add_argument("-v","--verbose",help="Show Output", action="store_true")
+parser.add_argument("fname",help='Input lattice file',nargs="+")
+#parser.add_argument("-v","--verbose",help="Show Output", action="store_true")
 
 args=parser.parse_args()
 
-import re
-import sys
 #Added another digit to the end to indicate at which site to cut to make the desired cut
 lxre=re.compile(r"L(\d\d)(\d\d)_(\d\d)X\s(\d+)")
 lyre=re.compile(r"L(\d\d)(\d\d)_(\d\d)Y\s(\d+)")
 cre=re.compile(r"C(\d\d)(\d\d)_(\d\d)(\d\d)\s(\d+)")
 ure=re.compile(r"U(\d\d)(\d\d)_(\d\d)(\d\d)\s(\d+)")
 
-As=[]
-Bs=[]
-bonds=[]
-rows=[]
-cuts=[]
-filein=[]
-lattice=[]
-a=1
-fname=args.fname
-try:
-    f=open(fname)
-except:
-   # print fname, "Not found"
-    sys.exit()
+for fname in args.fname:
+    As=[]
+    Bs=[]
+    bonds=[]
+    plaqs=[]
+    rows=[]
+    cuts=[]
+    filein=[]
+    lattice=[]
+    a=1
+    try:
+        f=open(fname)
+    except:
+       # print fname, "Not found"
+        sys.exit()
 
-for line in f:
-    match1=lxre.match(line)
-    match2=lyre.match(line)
-    match3=cre.match(line)
-    match4=ure.match(line)
-    if match1:
-        x=match1.group(1)
-        y=match1.group(2)
-        n=match1.group(3)
-        name="L%s%s_%sX"%(x,y,n)
-        cuts.append((name,match1.group(4)))
-    elif match2:
-        x=match2.group(1)
-        y=match2.group(2)
-        n=match2.group(3)
-        name="L%s%s_%sY"%(x,y,n)
-        cuts.append((name,match2.group(4)))
-    elif match3:
-        x=match3.group(1)
-        y=match3.group(2)
-        n1=match3.group(3)
-        n2=match3.group(4)
-        name="C%s%s_%s%s"%(x,y,n1,n2)
-        cuts.append((name,match3.group(5)))    
-    elif match4:
-        x=match4.group(1)
-        y=match4.group(2)
-        n1=match4.group(3)
-        n2=match4.group(4)
-        name="U%s%s_%s%s"%(x,y,n1,n2)
-        cuts.append((name,match4.group(5)))    
-    else:
-        lattice.append(line)
-        row=line.split()
-        rows.append(row)
-
-#Create horizontal bonds
-for i in range (len(rows)):
-    row=rows[i]
-    for j in range (len(row)-1):
-        bond=(row[j],row[j+1])
-        bonds.append(bond)
-        
-#Create vertical bonds
-for i in range (len(rows)-1):
-    top=rows[i]
-    next=rows[i+1]
-    if len(top)!=len(next):
-        print 'rows length do not match', i+1,fname
-    for j in range (len(top)):    
-        bond=(top[j],next[j])
-        bonds.append(bond)
-#Using dummy variable 'a' as a counter, find A and B sites        
-for i in range (len(rows)):
-    row=rows[len(rows)-(i+1)]
-    for j in range (len(row)):
-        if a==1:
-            As.append(row[j])
-        elif a==-1:
-            Bs.append(row[j])
+    for line in f:
+        match1=lxre.match(line)
+        match2=lyre.match(line)
+        match3=cre.match(line)
+        match4=ure.match(line)
+        if match1:
+            x=match1.group(1)
+            y=match1.group(2)
+            n=match1.group(3)
+            name="L%s%s_%sX"%(x,y,n)
+            cuts.append((name,match1.group(4)))
+        elif match2:
+            x=match2.group(1)
+            y=match2.group(2)
+            n=match2.group(3)
+            name="L%s%s_%sY"%(x,y,n)
+            cuts.append((name,match2.group(4)))
+        elif match3:
+            x=match3.group(1)
+            y=match3.group(2)
+            n1=match3.group(3)
+            n2=match3.group(4)
+            name="C%s%s_%s%s"%(x,y,n1,n2)
+            cuts.append((name,match3.group(5)))    
+        elif match4:
+            x=match4.group(1)
+            y=match4.group(2)
+            n1=match4.group(3)
+            n2=match4.group(4)
+            name="U%s%s_%s%s"%(x,y,n1,n2)
+            cuts.append((name,match4.group(5)))    
         else:
-            print 'A,B counting error'+fname
-        a*=-1
-    if len(row)%2==0:
-        a*=-1
-#Create new .txt output file
-fsplit=fname.split('.')
-fnew=fsplit[0]+'.h'        
-f=open(fnew,'w')
-#Add lattice at start
-print >> f, '//'
-for i in range(len(lattice)):
-    lattice[i]=lattice[i].rstrip('\n')
-    print >> f,'//'+ lattice[i]
-print >> f, '//'
-#Input As, Bs, and bonds into new file
-for i in As:
-    print >> f, 'A('+i+')'
-for i in Bs:
-    print >> f, 'B('+i+')'
-for i,j in bonds:
-    print >> f, 'Add('+i+','+j+')'
-for i,j in cuts:
-    print >> f, 'Cut('+i+','+j+')'
-    
-    
-#Various Checks
-#Check all rows are same length
-for i in range(len(rows)-1):
-    row1=rows[i]
-    row2=rows[i+1]
-    if len(row1)!=len(row2):
-        print 'Length of row',i,'and',(i+1),'do not match', fname
-#Check all numbers present and no duplicates
-for i in range(1,len(rows)*len(row1)+1):
-    j=str(i)
-    k=[item for item in rows if j in item]
-    if len(k)!=1:
-        print 'Duplicate number or missing number in lattice', fname
-
-#Check appropriate number of bonds for lattice size
-bondnumber=2*len(rows)*len(row1)-len(rows)-len(row1)
-if bondnumber!=len(bonds):
-    print 'inappropriate number of bonds', fname
-
-#Check that no duplicate cuts have been entered
-cutnum=[0]*len(cuts)
-cuttype=[0]*len(cuts)
-for i in range(len(cuts)):
-    cut=cuts[i]
-    cutnum[i]=cut[1]
-    cuttype[i]=cut[0]
-#print cutnum
-#print cuttype
-for i in cutnum:
-    k=[item for item in cutnum if i is item]
-    if len(k)!=1:
-        print 'Duplicate cut number', fname
-for i in cuttype:
-    k=[item for item in cuttype if i in item]
-    if len(k)!=1:
-        print 'Duplicate cut designation',fname
+            lattice.append(line)
+            row=line.split()
+            rows.append(row)
 
 
-if args.verbose: print "All tests passed",fname
+    #Create horizontal bonds
+    for i in range (len(rows)):
+        row=rows[i]
+        for j in range (len(row)-1):
+            bond=(row[j],row[j+1])
+            bonds.append(bond)
+            
+    #Create vertical bonds
+    for i in range (len(rows)-1):
+        top=rows[i]
+        next=rows[i+1]
+        if len(top)!=len(next):
+            print 'rows length do not match', i+1,fname
+        for j in range (len(top)):    
+            bond=(top[j],next[j])
+            bonds.append(bond)
+
+    #Create plaquettes
+    for i in range (len(rows)-1):
+        top=rows[i]
+        nxt=rows[i+1]
+        if len(top)!=len(nxt):
+            print 'rows length do not match', i+1,fname
+        for j in range(len(top)-1):    
+            plaq=(top[j],nxt[j],top[j+1],nxt[j+1])
+            plaqs.append(plaq)
+
+    #Using dummy variable 'a' as a counter, find A and B sites        
+    for i in range (len(rows)):
+        row=rows[len(rows)-(i+1)]
+        for j in range (len(row)):
+            if a==1:
+                As.append(row[j])
+            elif a==-1:
+                Bs.append(row[j])
+            else:
+                print 'A,B counting error'+fname
+            a*=-1
+        if len(row)%2==0:
+            a*=-1
+
+    #Create new .txt output file
+    fsplit=fname.split('_')
+    fsplit[0] = "Path"
+    fnew = ""
+    for j in range(len(fsplit)):
+        if j!=0: fnew += "_"
+        fnew += fsplit[j]
+
+    #cmd = "cp {} {}".format(fname,fnew)
+    #os.system(cmd)
+
+    fnewh = fnew+".h"
+    f=open(fnewh,'w')
+
+    #Add lattice at start
+    print >> f, '//'
+    for i in range(len(lattice)):
+        lattice[i]=lattice[i].rstrip('\n')
+        print >> f,'//'+ lattice[i]
+    print >> f, '//'
+
+    #Input As, Bs, and bonds into new file
+    for i in As:
+        print >> f, 'A('+i+')'
+    for i in Bs:
+        print >> f, 'B('+i+')'
+    for i,j in bonds:
+        print >> f, 'Add('+i+','+j+')'
+    for i,j,k,l in plaqs:
+        print >> f, "Plaq({},{},{},{})".format(i,j,k,l)
+        print >> f, "Plaq({},{},{},{})".format(i,k,j,l)
+    for i,j in cuts:
+        print >> f, 'Cut('+i+','+j+')'
+        
+        
+    #Various Checks
+    #Check all rows are same length
+    for i in range(len(rows)-1):
+        row1=rows[i]
+        row2=rows[i+1]
+        if len(row1)!=len(row2):
+            print 'Length of row',i,'and',(i+1),'do not match', fname
+
+    #Check all numbers present and no duplicates
+    for i in range(1,len(rows)*len(row1)+1):
+        j=str(i)
+        k=[item for item in rows if j in item]
+        if len(k)!=1:
+            print 'Duplicate number or missing number in lattice', fname
+
+    #Check appropriate number of bonds for lattice size
+    bondnumber=2*len(rows)*len(row1)-len(rows)-len(row1)
+    if bondnumber!=len(bonds):
+        print 'inappropriate number of bonds', fname
+
+    #Check that no duplicate cuts have been entered
+    cutnum=[0]*len(cuts)
+    cuttype=[0]*len(cuts)
+    for i in range(len(cuts)):
+        cut=cuts[i]
+        cutnum[i]=cut[1]
+        cuttype[i]=cut[0]
+    #print cutnum
+    #print cuttype
+    for i in cutnum:
+        k=[item for item in cutnum if i is item]
+        if len(k)!=1:
+            print 'Duplicate cut number', fname
+    for i in cuttype:
+        k=[item for item in cuttype if i in item]
+        if len(k)!=1:
+            print 'Duplicate cut designation',fname
+
+
+    #if args.verbose: print "All tests passed",fname
