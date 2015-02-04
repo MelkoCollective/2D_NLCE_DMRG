@@ -11,20 +11,20 @@ xmax = None
 #############################
 # User settings
 
-#order_min = 2
-#order_max = 4.0
-#order_step = 0.5
-#order = Arithmetic()
-
 order_min = 2
-order_max = 5.0
-order_step = 1.0
-order = MaxL()
+order_max = 6.0
+order_step = 0.5
+order = Arithmetic()
+
+#order_min = 2
+#order_max = 5.0
+#order_step = 1.0
+#order = MaxL()
 
 ##xmin = 2.00
 #xmax = 1.72
-xmin = 2.00
-xmax = 2.00
+xmin = 0.00
+xmax = 0.00
 
 #############################
 
