@@ -89,7 +89,7 @@ class Geometric:
     def lengthstr(self,L):
         return "%.1f"%self.length(L)
 
-    def clusters(self,L):
+    def clusters(self,L,min_L=1):
         from math import sqrt
         from frange import frange
         res = []
@@ -98,4 +98,20 @@ class Geometric:
                 ll = sqrt(x*y)
                 if (ll > (L-0.5) or abs(ll-(L-0.5))<1E-5) and (ll < L or abs(ll-L)<1E-5):
                     res.append((int(x),int(y)))
+        return res
+
+class MaxL:
+    def length(self,N):
+        return N
+
+    def lengthstr(self,N):
+        return "%.1f"%self.length(N)
+
+    def clusters(self,N,min_L=1):
+        x = int(N)
+        y = min_L
+        res = [(x,y),]
+        while x > y:
+            y += 1
+            if x >= y: res.append((x,y))
         return res
