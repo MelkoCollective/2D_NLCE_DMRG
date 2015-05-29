@@ -10,7 +10,13 @@ import argparse
 ##------------------------
 
 lmin = 3.0
-lmax = 6.0
+lmax = 7.0
+lstep = 1.0
+
+#fit_type = 'linear'
+#fit_type = 'subleading'
+fit_type = 'subleading2'
+fit_type = 'subleading3'
 
 ##------------------------
 
@@ -45,6 +51,30 @@ def subleading_fit(x_list,y_list):
 
     return (a,b,c,rms_err)
 
+def subleading2_fit(x_list,y_list):
+    Y = matrix([[y_] for y_ in y_list])
+    X = matrix([[x_,1,exp(-x_),exp(-2*x_)] for x_ in x_list])
+
+    (Q,R) = linalg.qr(X)
+
+    (a,b,c,d) = [float(item) for item in linalg.solve(R,Q.transpose()*Y)]
+
+    rms_err = sqrt(mean([float(item)**2 for item in Y-X*matrix([[a],[b],[c],[d]])]))
+
+    return (a,b,c,d,rms_err)
+
+def subleading3_fit(x_list,y_list):
+    Y = matrix([[y_] for y_ in y_list])
+    X = matrix([[x_,1,exp(-x_),exp(-2*x_),exp(-3*x_)] for x_ in x_list])
+
+    (Q,R) = linalg.qr(X)
+
+    (a,b,c,d,f) = [float(item) for item in linalg.solve(R,Q.transpose()*Y)]
+
+    rms_err = sqrt(mean([float(item)**2 for item in Y-X*matrix([[a],[b],[c],[d],[f]])]))
+
+    return (a,b,c,d,f,rms_err)
+
 def frange(start, end, step):
     x = start
     while x < end:
@@ -74,7 +104,7 @@ print alpha_out
 lfloat=[]
 lstring=[]
 logl = []
-for l in frange(lmin,lmax+0.001,0.5):
+for l in frange(lmin,lmax+0.001,lstep):
     lfloat.append(l)
     lstring.append(str(l))
     logl.append(log(l))
@@ -108,13 +138,31 @@ for i,l in enumerate(lfloat):
 slopes = []
 errors=[]
 
+if fit_type=='linear': 
+    print "Doing linear fit"
+elif fit_type=='subleading': 
+    print "Doing subleading 1/L fit"
+elif fit_type=='subleading2': 
+    print "Doing subleading2 1/L, 1/L^2 fit"
+elif fit_type=='subleading3': 
+    print "Doing subleading3 1/L, 1/L^2, 1/L^3 fit"
+
 for i,a in enumerate(alphas):
     corners = []
     for l in lfloat:
         corners.append(res[l][i])
-    m = None; b = None; c = None;
-    #m,b,err = linfit(logl,corners)
-    m,b,c,err = subleading_fit(logl,corners)
+    m = None; b = None; c = None; err = None
+
+    if fit_type=='linear': 
+        m,b,err = linfit(logl,corners)
+    elif fit_type=='subleading': 
+        m,b,c,err = subleading_fit(logl,corners)
+    elif fit_type=='subleading2': 
+        m,b,c,d,err = subleading2_fit(logl,corners)
+    elif fit_type=='subleading3': 
+        m,b,c,d,f,err = subleading3_fit(logl,corners)
+    else: raise Exception("Fit type {} not recognized".format(fit_type))
+
     slopes.append(m)
     errors.append(err)
     if a in alpha_out:
@@ -133,7 +181,7 @@ for i,a in enumerate(alphas):
             f.write("%.20f %.20f\n"%(logl[j],c))
         f.close()
 
-fname="slope_%.1f"%(lmin)
+fname="slope_%.1f_%.1f"%(lmin,lmax)
 print "Writing file: ",fname
 f = open(fname,'w')
 for a,m,err in zip(alphas,slopes,errors):
