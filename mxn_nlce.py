@@ -9,9 +9,10 @@ from mxn_order import *
 # User settings
 
 order_min = 2
-order_max = 6
+order_max = 26
 order_step = 1
 order = MaxL()
+minL = 2
 
 #############################
 
@@ -24,7 +25,7 @@ missing = [] # The list of missing data files
 clusters = []
 
 for I in frange(order_min,order_max+0.01,order_step):
-    for m,n in order.clusters(I,min_L=order_min):
+    for m,n in order.clusters(I,min_L=minL):
 
         d,alphas,newrequired,newmissing = mxn_getdata.getdata(m,n,d) # read and check for missing data
         required.extend(newrequired)
@@ -42,6 +43,8 @@ for I in frange(order_min,order_max+0.01,order_step):
                 total = Lc*w['%02d%02d'%(m,n)]
             else:
                 total = total + Lc*w['%02d%02d'%(m,n)]
+
+    print "Done through order ",I
 
     # Save result to file
     filename = "Results_" + order.lengthstr(I)
