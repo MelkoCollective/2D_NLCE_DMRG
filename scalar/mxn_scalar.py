@@ -21,10 +21,8 @@ order_max = 5.0
 order_step = 1.0
 order = MaxL()
 
-##xmin = 2.00
+#xmin = 2.00
 #xmax = 1.72
-xmin = 2.00
-xmax = 2.00
 
 #############################
 
@@ -55,6 +53,8 @@ for I in frange(order_min,order_max+0.01,order_step):
             #Embedding factor (1 for squares, 2 for rectangles):
             Lc = 1
             if m != n: Lc = 2
+
+            print "Contribution Lc*W%02dx%02d=(%d)*(%.5f)=%.5f"%(m,n,Lc,w['%02dx%02d'%(m,n)],Lc*w['%02dx%02d'%(m,n)])
 
             # cannot use total += w['%02d%02d'%(m,n)] or else W0202 somehow gets changed every iteration
             if total is None:
